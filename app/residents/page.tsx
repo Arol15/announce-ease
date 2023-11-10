@@ -1,8 +1,12 @@
+import Link from "next/link";
+
 const ResidentsPage = () => {
   return (
     <>
       <div>List of Residents</div>
-      <button>Add Resident</button>
+      <button>
+        <Link href="/residents/new">Add resident</Link>
+      </button>
     </>
   );
 };
