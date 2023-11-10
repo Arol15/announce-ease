@@ -9,13 +9,13 @@ import * as z from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   header: z.string().min(2, {
@@ -27,6 +27,7 @@ const formSchema = z.object({
 });
 
 const NewAnnouncementPage = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,8 +36,20 @@ const NewAnnouncementPage = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response = await fetch("/api/announcements", {
+        method: "POST",
+        body: JSON.stringify(values),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      router.push("/announcements");
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -53,6 +66,15 @@ const NewAnnouncementPage = () => {
                 <FormControl>
                   <Input placeholder="header" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="body"
+            render={({ field }) => (
+              <FormItem>
                 <FormControl>
                   <SimpleMDE placeholder="Add your text" {...field} />
                 </FormControl>
